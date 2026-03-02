@@ -1,0 +1,254 @@
+---
+title: JSON Handling
+description: Send and format JSON data with automatic detection and pretty-printing
+---
+
+gurl provides excellent support for working with JSON APIs, including automatic detection, formatting, and shortcuts for common operations.
+
+## Sending JSON Requests
+
+There are two ways to send JSON data with gurl.
+
+### Method 1: Using the JSON Shortcut
+
+Use `--json-request` to automatically set the Content-Type header:
+
+```bash
+gurl request https://dummyjson.com/auth/login \
+  -X POST \
+  --json-request \
+  -d '{"username":"emilys","password":"emilyspass"}'
+```
+
+### Method 2: Manual Content-Type Header
+
+Explicitly set the Content-Type header:
+
+```bash
+gurl request https://dummyjson.com/auth/login \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"username":"emilys","password":"emilyspass","expiresInMins":30}'
+```
+
+<Tabs>
+  <Tab title="With Shortcut">
+    ```bash
+    gurl request https://api.example.com/users \
+      -X POST \
+      --json-request \
+      -d '{"name":"John Doe","email":"john@example.com"}'
+    ```
+  </Tab>
+  <Tab title="With Header">
+    ```bash
+    gurl request https://api.example.com/users \
+      -X POST \
+      -H "Content-Type: application/json" \
+      -d '{"name":"John Doe","email":"john@example.com"}'
+    ```
+  </Tab>
+</Tabs>
+
+<Tip>
+The `--json-request` flag is more concise and reduces typing.
+</Tip>
+
+## Formatting JSON Responses
+
+gurl can automatically format JSON responses for better readability.
+
+### Explicit JSON Formatting
+
+Use the `-j` or `--json` flag to format the response as JSON:
+
+```bash
+gurl request -j https://dummyjson.com/products/1
+```
+
+This will pretty-print the JSON response with:
+- Proper indentation
+- Syntax highlighting
+- Easy-to-read structure
+
+### Example Output
+
+<Steps>
+  <Step title="Make the request">
+    ```bash
+    gurl request -j https://dummyjson.com/products/1
+    ```
+  </Step>
+  <Step title="View formatted output">
+    The response will be displayed with proper indentation:
+    ```json
+    {
+      "id": 1,
+      "title": "Product Name",
+      "description": "Product description here",
+      "price": 549,
+      "rating": 4.69
+    }
+    ```
+  </Step>
+</Steps>
+
+## Auto-Detection of JSON
+
+gurl automatically detects and formats JSON responses, even without the `-j` flag.
+
+### How Auto-Detection Works
+
+```bash
+# This will automatically format if the response is JSON
+gurl request https://dummyjson.com/products
+```
+
+The auto-detection:
+- Checks the Content-Type header for `application/json`
+- Attempts to parse the response body as JSON
+- Automatically formats if valid JSON is detected
+
+<Note>
+Auto-detection is enabled by default unless explicitly disabled with `--no-pretty`.
+</Note>
+
+## Disabling JSON Formatting
+
+Use the `--no-pretty` flag to disable automatic JSON formatting:
+
+```bash
+gurl request --no-pretty https://dummyjson.com/products/1
+```
+
+This is useful when:
+- You need raw, unformatted output
+- Piping output to another tool
+- Processing JSON programmatically
+- The response contains invalid JSON that causes formatting errors
+
+<Tabs>
+  <Tab title="With Formatting">
+    ```bash
+    gurl request https://dummyjson.com/products/1
+    ```
+    Output is pretty-printed and colored.
+  </Tab>
+  <Tab title="Without Formatting">
+    ```bash
+    gurl request --no-pretty https://dummyjson.com/products/1
+    ```
+    Output is raw JSON on a single line.
+  </Tab>
+</Tabs>
+
+## Real-World JSON Examples
+
+### Fetching User Data
+
+```bash
+gurl request -j https://dummyjson.com/users
+```
+
+### Creating a Resource
+
+```bash
+gurl request https://dummyjson.com/products \
+  -X POST \
+  --json-request \
+  -d '{"title":"New Product","price":299.99,"category":"electronics"}' \
+  -j
+```
+
+This command:
+- Sends JSON data with proper Content-Type
+- Formats the JSON response
+- Makes the output easy to read
+
+### Updating with PATCH
+
+```bash
+gurl request https://dummyjson.com/products/1 \
+  -X PATCH \
+  --json-request \
+  -d '{"price":599.99}' \
+  -j
+```
+
+### Complex Nested JSON
+
+```bash
+gurl request https://api.example.com/orders \
+  -X POST \
+  --json-request \
+  -d '{
+    "customer": {
+      "name": "John Doe",
+      "email": "john@example.com"
+    },
+    "items": [
+      {"id": 1, "quantity": 2},
+      {"id": 5, "quantity": 1}
+    ],
+    "shipping": {
+      "method": "express",
+      "address": "123 Main St"
+    }
+  }' \
+  -j
+```
+
+## Saving JSON to File
+
+Combine JSON formatting with file output:
+
+```bash
+gurl request -j -o response.json https://dummyjson.com/users
+```
+
+This:
+- Formats the JSON response
+- Saves it to `response.json`
+- Creates a beautifully formatted file
+
+<Warning>
+When using `-o` with `-j`, the formatted JSON is saved to the file, not the raw response.
+</Warning>
+
+## JSON with Authentication
+
+Combining JSON handling with authentication:
+
+```bash
+# Login and get token
+gurl request https://dummyjson.com/auth/login \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"username":"emilys","password":"emilyspass","expiresInMins":30}' \
+  -j
+
+# Use token for authenticated request
+gurl request https://dummyjson.com/auth/me \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN_HERE" \
+  -j
+```
+
+## Verbose JSON Requests
+
+See complete request and response details:
+
+```bash
+gurl request https://dummyjson.com/products/1 \
+  -j \
+  -v
+```
+
+This shows:
+- Request headers
+- Timing information
+- Response headers
+- Formatted JSON body
+
+<Tip>
+Use `-v` with `-j` when debugging API issues to see all request/response details with readable JSON.
+</Tip>

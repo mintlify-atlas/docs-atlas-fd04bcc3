@@ -1,0 +1,189 @@
+---
+title: 'File Downloads'
+description: 'Download files with progress tracking, resume capability, and retry logic'
+---
+
+## Basic File Download
+
+Download a file with automatic progress tracking:
+
+```bash
+gurl download https://example.com/file.zip
+```
+
+The file will be saved with its original name and show a progress bar during download.
+
+## Specify Output Filename
+
+Save the downloaded file with a custom name:
+
+```bash
+gurl download -o myfile.zip https://example.com/file.zip
+```
+
+You can also use the `-o` flag with the `request` command:
+
+```bash
+gurl request -o myfile.zip https://example.com/file.zip
+```
+
+## Save to Specific Directory
+
+Download files to a specific directory:
+
+```bash
+gurl download -P ./downloads/ https://example.com/file.zip
+```
+
+The `-P` flag specifies the directory where the file will be saved. The directory must exist before downloading.
+
+## Resume Interrupted Download
+
+Resume a partially downloaded file:
+
+```bash
+gurl download -c https://example.com/large-file.iso
+```
+
+The `-c` flag (continue) allows you to resume downloads that were interrupted due to:
+- Network interruptions
+- Timeout issues
+- Manual cancellation (Ctrl+C)
+
+If the file already exists partially, gurl will request only the remaining bytes.
+
+## Download with Retry Logic
+
+Automatically retry failed downloads:
+
+```bash
+gurl download --tries 5 --retry-delay 5s https://example.com/file.zip
+```
+
+This will:
+- Attempt the download up to 5 times
+- Wait 5 seconds between retry attempts
+- Useful for unstable network connections
+
+**Default behavior:**
+- Default tries: 3
+- Default retry delay: 2s
+- Set `--tries 0` to disable retries
+
+### Example with Multiple Retries
+
+```bash
+# Download with aggressive retry strategy
+gurl download --tries 10 --retry-delay 3s https://example.com/large-file.iso
+```
+
+## Quiet Mode Downloads
+
+Download without showing the progress bar:
+
+```bash
+gurl download -q https://example.com/file.zip
+```
+
+Quiet mode is useful for:
+- Running downloads in scripts
+- Cron jobs
+- When you don't need visual feedback
+
+## Custom Download Timeout
+
+Set a custom timeout for large file downloads:
+
+```bash
+gurl download -t 60s https://example.com/large-file.iso
+```
+
+The default timeout is 30 seconds. For large files, increase the timeout:
+
+```bash
+# 5 minute timeout for very large files
+gurl download -t 300s https://example.com/huge-file.bin
+
+# 10 minute timeout
+gurl download -t 600s https://example.com/massive-dataset.tar.gz
+```
+
+## Disable Redirect Following
+
+Prevent the download from following redirects:
+
+```bash
+gurl download -n https://example.com/file.zip
+```
+
+Or limit the number of redirects:
+
+```bash
+gurl download --max-redirects 3 https://example.com/file.zip
+```
+
+## Insecure Downloads for Testing
+
+Download from servers with self-signed or invalid SSL certificates:
+
+```bash
+gurl download -k https://example.com/file.zip
+```
+
+**Warning:** Only use the `-k` flag for testing or development environments.
+
+## Combining Download Options
+
+You can combine multiple flags for advanced download scenarios:
+
+```bash
+# Resume download with retry, save to specific directory, quiet mode
+gurl download -c -q --tries 5 --retry-delay 3s -P ./downloads/ https://example.com/large-file.iso
+```
+
+```bash
+# Download with custom timeout, retry logic, and custom filename
+gurl download -t 300s --tries 10 --retry-delay 5s -o my-archive.zip https://example.com/archive.zip
+```
+
+```bash
+# Insecure download with resume capability and quiet mode
+gurl download -k -c -q -o unsafe-file.bin https://internal-server.local/file.bin
+```
+
+## Practical Download Examples
+
+### Download Large ISO File
+
+```bash
+# Download with resume capability, long timeout, and retry logic
+gurl download -c -t 600s --tries 5 --retry-delay 10s -o ubuntu-22.04.iso https://releases.ubuntu.com/22.04/ubuntu-22.04-desktop-amd64.iso
+```
+
+### Batch Downloads to Specific Directory
+
+```bash
+# Create downloads directory
+mkdir -p ./downloads
+
+# Download multiple files
+gurl download -P ./downloads/ -q https://example.com/file1.zip
+gurl download -P ./downloads/ -q https://example.com/file2.zip
+gurl download -P ./downloads/ -q https://example.com/file3.zip
+```
+
+### Automated Script Download
+
+```bash
+#!/bin/bash
+# Download script with error handling
+
+gurl download -q -c --tries 5 -o backup.tar.gz https://example.com/backup.tar.gz
+
+if [ $? -eq 0 ]; then
+  echo "Download completed successfully"
+else
+  echo "Download failed after retries"
+  exit 1
+fi
+```

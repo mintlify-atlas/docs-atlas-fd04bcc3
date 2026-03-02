@@ -1,0 +1,113 @@
+---
+title: 'Basic Requests'
+description: 'Learn how to make simple HTTP requests with gurl'
+---
+
+## Simple GET Request
+
+The most basic usage of gurl is making a GET request to a URL:
+
+```bash
+gurl request https://dummyjson.com/products
+```
+
+This fetches the resource and displays the response in your terminal.
+
+## POST Request with Data
+
+Send JSON data with a POST request:
+
+```bash
+gurl request https://dummyjson.com/auth/login \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"username":"emilys","password":"emilyspass","expiresInMins":30}'
+```
+
+**Expected output:**
+```json
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "id": 1,
+  "username": "emilys",
+  "email": "emily.johnson@x.dummyjson.com",
+  "firstName": "Emily",
+  "lastName": "Johnson"
+}
+```
+
+## Using Different HTTP Methods
+
+Specify the HTTP method with the `-X` flag:
+
+```bash
+# POST request
+gurl request -X POST https://dummyjson.com/products
+
+# PUT request
+gurl request -X PUT https://dummyjson.com/products/1
+```
+
+## Custom Headers
+
+Add custom headers to your requests:
+
+```bash
+gurl request https://dummyjson.com/auth/me \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN_HERE"
+```
+
+You can add multiple headers by using the `-H` flag multiple times:
+
+```bash
+gurl request https://dummyjson.com/products \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -H "User-Agent: gurl/1.0"
+```
+
+## Verbose Output
+
+See detailed request and response information including timing:
+
+```bash
+gurl request -v https://dummyjson.com/test
+```
+
+Verbose mode shows:
+- Request headers sent
+- Response headers received
+- Status code
+- Timing information
+- Full response body
+
+## Format JSON Response
+
+Automatically format and prettify JSON responses:
+
+```bash
+gurl request -j https://dummyjson.com/products/1
+```
+
+This makes JSON responses easier to read with proper indentation and syntax highlighting.
+
+## Save Response to File
+
+Save the response directly to a file:
+
+```bash
+gurl request -o response.json https://dummyjson.com/users
+```
+
+The response will be written to `response.json` instead of being displayed in the terminal.
+
+You can also combine this with other flags:
+
+```bash
+# Save formatted JSON to file
+gurl request -j -o users.json https://dummyjson.com/users
+
+# Save response with verbose output shown
+gurl request -v -o output.html https://example.com
+```

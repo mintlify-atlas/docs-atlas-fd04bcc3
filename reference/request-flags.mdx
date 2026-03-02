@@ -1,0 +1,116 @@
+---
+title: Request Command Flags
+description: Flags available for the gurl request command
+---
+
+The request command is used to make HTTP requests with various customization options. These flags control the request method, headers, body, and output formatting.
+
+## Flags
+
+<ParamField path="-X, --method" type="string" default="GET">
+  HTTP method to use for the request. Common methods include GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS.
+</ParamField>
+
+<ParamField path="-d, --data" type="string" default="">
+  Request body data to send with the request. Typically used with POST, PUT, or PATCH requests.
+</ParamField>
+
+<ParamField path="-H, --header" type="string array" default="[]">
+  Custom headers to include in the request. Can be specified multiple times to add multiple headers. Format: "Header-Name: value".
+</ParamField>
+
+<ParamField path="-v, --verbose" type="boolean" default="false">
+  Show verbose output including request details, response headers, and timing information.
+</ParamField>
+
+<ParamField path="-o, --output" type="string" default="">
+  Write response to the specified file instead of stdout. The file will be created or overwritten.
+</ParamField>
+
+<ParamField path="-j, --json" type="boolean" default="false">
+  Format response as JSON. Enables pretty-printing of JSON responses.
+</ParamField>
+
+<ParamField path="-L, --follow" type="boolean" default="false">
+  Follow HTTP redirects. When enabled, gurl will automatically follow 3xx redirect responses up to the max-redirects limit.
+</ParamField>
+
+<ParamField path="--json-request" type="boolean" default="false">
+  Set Content-Type header to application/json. Convenient shortcut for JSON API requests.
+</ParamField>
+
+<ParamField path="--form" type="boolean" default="false">
+  Set Content-Type header to application/x-www-form-urlencoded. Used for submitting HTML form data.
+</ParamField>
+
+<ParamField path="--no-pretty" type="boolean" default="false">
+  Disable automatic JSON formatting. By default, gurl auto-detects and pretty-prints JSON responses.
+</ParamField>
+
+## Usage Examples
+
+### Basic GET Request
+
+```bash
+gurl request https://api.example.com/users
+```
+
+### POST Request with JSON Data
+
+```bash
+gurl request -X POST -d '{"name":"John","email":"john@example.com"}' --json-request https://api.example.com/users
+```
+
+### Custom Headers
+
+```bash
+gurl request -H "Authorization: Bearer token123" -H "Accept: application/json" https://api.example.com/protected
+```
+
+### Verbose Output
+
+```bash
+gurl request -v https://api.example.com/users
+```
+
+### Save Response to File
+
+```bash
+gurl request -o response.json https://api.example.com/data
+```
+
+### Follow Redirects
+
+```bash
+gurl request -L https://example.com/redirect
+```
+
+### Form Data Submission
+
+```bash
+gurl request -X POST -d "username=john&password=secret" --form https://example.com/login
+```
+
+### PUT Request with JSON
+
+```bash
+gurl request -X PUT -d '{"status":"completed"}' --json-request https://api.example.com/tasks/1
+```
+
+### DELETE Request
+
+```bash
+gurl request -X DELETE -H "Authorization: Bearer token123" https://api.example.com/users/1
+```
+
+### Disable JSON Pretty-Printing
+
+```bash
+gurl request --no-pretty https://api.example.com/data
+```
+
+### Combining Multiple Flags
+
+```bash
+gurl request -X POST -H "Authorization: Bearer token" -d '{"key":"value"}' --json-request -v -o output.json https://api.example.com/endpoint
+```

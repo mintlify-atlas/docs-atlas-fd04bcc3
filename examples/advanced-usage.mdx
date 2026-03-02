@@ -1,0 +1,287 @@
+---
+title: 'Advanced Usage'
+description: 'Complex request scenarios and advanced gurl features'
+---
+
+## Combining Multiple Flags
+
+You can combine multiple flags to create powerful requests:
+
+```bash
+# Verbose POST with JSON formatting and file output
+gurl request -v -j -o response.json https://dummyjson.com/products \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"title":"New Product","price":99.99}'
+```
+
+```bash
+# Follow redirects with custom headers and verbose output
+gurl request -L -v https://dummyjson.com/http/200 \
+  -H "User-Agent: gurl/1.0" \
+  -H "Accept: application/json"
+```
+
+## Complex Request Scenarios
+
+### Authenticated API Workflow
+
+Combine authentication, JSON handling, and file operations:
+
+```bash
+# Login and save token
+gurl request -j -o auth.json https://dummyjson.com/auth/login \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"username":"emilys","password":"emilyspass","expiresInMins":30}'
+
+# Use token for authenticated request with verbose output
+gurl request -v -j https://dummyjson.com/auth/me \
+  -H "Authorization: Bearer YOUR_TOKEN_HERE"
+```
+
+### Multi-Header Complex Request
+
+```bash
+gurl request -v -j https://dummyjson.com/products \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -H "User-Agent: gurl/1.0" \
+  -H "X-API-Key: your-api-key" \
+  -d '{"title":"Product","description":"Description","price":49.99}'
+```
+
+## Redirects with Limits
+
+Control how redirects are handled:
+
+### Follow All Redirects
+
+```bash
+gurl request -L https://dummyjson.com/http/200
+```
+
+### Limit Maximum Redirects
+
+```bash
+# Follow up to 5 redirects only
+gurl request -L --max-redirects 5 https://dummyjson.com/http/200
+
+# Follow only 1 redirect
+gurl request -L --max-redirects 1 https://dummyjson.com/http/200
+```
+
+### Verbose Redirect Information
+
+See each redirect step:
+
+```bash
+gurl request -v -L --max-redirects 10 https://dummyjson.com/http/200
+```
+
+Verbose mode will show:
+- Each redirect URL
+- Status codes (301, 302, etc.)
+- Headers at each step
+- Final destination
+
+## Insecure Connections for Testing
+
+Bypass SSL certificate verification for development/testing:
+
+```bash
+gurl request -k https://dummyjson.com/test
+```
+
+**Use cases:**
+- Testing with self-signed certificates
+- Local development environments
+- Internal APIs with invalid certificates
+
+**Warning:** Never use `-k` in production environments as it disables important security checks.
+
+### Combining Insecure with Other Flags
+
+```bash
+# Insecure request with verbose output
+gurl request -k -v https://internal-api.local/endpoint
+
+# Insecure POST with JSON data
+gurl request -k -X POST https://dev-server.local/api \
+  -H "Content-Type: application/json" \
+  -d '{"test":"data"}'
+```
+
+## Wait-Time Usage
+
+Delay request execution:
+
+```bash
+# Wait 5 seconds before making the request
+gurl request --wait-time 5s https://dummyjson.com/test
+```
+
+**Use cases:**
+- Rate limiting compliance
+- Scheduled requests
+- Testing time-sensitive endpoints
+- Avoiding API rate limits
+
+### Wait Time with Different Durations
+
+```bash
+# Wait 3 seconds
+gurl request --wait-time 3s https://dummyjson.com/test
+
+# Wait 500 milliseconds
+gurl request --wait-time 500ms https://dummyjson.com/test
+
+# Wait 1 minute
+gurl request --wait-time 1m https://dummyjson.com/test
+```
+
+## Timing Information with Verbose Mode
+
+Get detailed timing information:
+
+```bash
+gurl request -v --wait-time 3s https://dummyjson.com/test
+```
+
+Verbose mode shows:
+- Wait time before request
+- DNS lookup time
+- Connection time
+- TLS handshake time (if HTTPS)
+- Time to first byte
+- Total request time
+- Response transfer time
+
+### Example Output
+
+```bash
+gurl request -v https://dummyjson.com/products/1
+```
+
+Shows:
+```
+> GET /products/1 HTTP/1.1
+> Host: dummyjson.com
+> User-Agent: gurl/1.0
+> Accept: */*
+
+< HTTP/1.1 200 OK
+< Content-Type: application/json
+< Content-Length: 456
+< Date: Mon, 02 Mar 2026 10:30:00 GMT
+
+Timing Information:
+  DNS Lookup: 15ms
+  TCP Connection: 45ms
+  TLS Handshake: 120ms
+  Server Processing: 50ms
+  Content Transfer: 10ms
+  Total Time: 240ms
+
+{response body}
+```
+
+## Custom Timeout Settings
+
+Set custom timeouts for slow servers:
+
+```bash
+# 60 second timeout
+gurl request --timeout 60s https://slow-api.example.com
+
+# 2 minute timeout for very slow endpoints
+gurl request --timeout 120s https://data-processing.example.com
+```
+
+Default timeout is 30 seconds.
+
+## Advanced Download Scenarios
+
+### Resume with Retry and Timing
+
+```bash
+gurl download -c --tries 5 --retry-delay 5s -t 300s -o large-file.iso https://example.com/file.iso
+```
+
+This combines:
+- Resume capability (`-c`)
+- 5 retry attempts
+- 5 second delay between retries
+- 5 minute timeout
+- Custom output filename
+
+### Insecure Download with Custom Settings
+
+```bash
+gurl download -k -c -q --tries 10 --retry-delay 3s -t 600s -P ./downloads/ https://internal-server.local/backup.tar.gz
+```
+
+Features:
+- Bypass SSL verification
+- Resume capability
+- Quiet mode
+- 10 retry attempts
+- 3 second retry delay
+- 10 minute timeout
+- Save to specific directory
+
+## Form Data Requests
+
+Send form-encoded data:
+
+```bash
+gurl request --form https://api.example.com/submit \
+  -X POST \
+  -d 'username=john&password=secret&remember=true'
+```
+
+The `--form` flag sets `Content-Type: application/x-www-form-urlencoded`.
+
+## Disable JSON Pretty-Printing
+
+Get raw JSON output:
+
+```bash
+gurl request --no-pretty https://dummyjson.com/products/1
+```
+
+Useful for:
+- Piping to other tools
+- Scripts that parse JSON
+- Saving exact API responses
+
+## Complete Advanced Example
+
+Here's a comprehensive example combining many features:
+
+```bash
+# Complex authenticated request with all bells and whistles
+gurl request -v -j -L -o result.json \
+  --timeout 60s \
+  --max-redirects 5 \
+  --wait-time 2s \
+  https://api.example.com/data \
+  -X POST \
+  -H "Authorization: Bearer token123" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -H "User-Agent: gurl-client/1.0" \
+  -d '{"query":"advanced","filters":{"active":true,"limit":100}}'
+```
+
+This request:
+- Uses verbose output (`-v`) to show timing
+- Formats JSON response (`-j`)
+- Follows redirects (`-L`) up to 5 times
+- Saves output to file (`-o result.json`)
+- Has 60 second timeout
+- Waits 2 seconds before executing
+- Uses POST method with JSON data
+- Includes multiple custom headers
+- Sends complex JSON payload

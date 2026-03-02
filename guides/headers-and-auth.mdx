@@ -1,0 +1,220 @@
+---
+title: Headers and Authentication
+description: Add custom headers, authentication, and content-type shortcuts to your requests
+---
+
+Headers are essential for API communication, authentication, and controlling request behavior. gurl provides flexible options for managing headers.
+
+## Adding Custom Headers
+
+Use the `-H` or `--header` flag to add custom headers to your requests:
+
+```bash
+gurl request https://api.example.com/data \
+  -H "User-Agent: MyApp/1.0"
+```
+
+## Multiple Headers
+
+You can specify the `-H` flag multiple times to add multiple headers:
+
+```bash
+gurl request https://api.example.com/data \
+  -H "User-Agent: MyApp/1.0" \
+  -H "Accept: application/json" \
+  -H "X-Custom-Header: value"
+```
+
+<Tip>
+Each `-H` flag adds a new header to the request.
+</Tip>
+
+## Authorization Header Examples
+
+Authentication is commonly done through the Authorization header.
+
+### Bearer Token Authentication
+
+```bash
+gurl request https://dummyjson.com/auth/me \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN_HERE"
+```
+
+<Tabs>
+  <Tab title="Bearer Token">
+    ```bash
+    gurl request https://api.example.com/profile \
+      -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    ```
+  </Tab>
+  <Tab title="API Key">
+    ```bash
+    gurl request https://api.example.com/data \
+      -H "X-API-Key: your-api-key-here"
+    ```
+  </Tab>
+  <Tab title="Basic Auth">
+    ```bash
+    gurl request https://api.example.com/secure \
+      -H "Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ="
+    ```
+  </Tab>
+</Tabs>
+
+### OAuth Token Example
+
+Combining authentication with a POST request:
+
+```bash
+gurl request https://api.example.com/posts \
+  -X POST \
+  -H "Authorization: Bearer your-oauth-token" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"My Post","content":"Hello World"}'
+```
+
+## Content-Type Shortcuts
+
+gurl provides convenient shortcuts for common content types.
+
+### JSON Request Shortcut
+
+Use `--json-request` to automatically set `Content-Type: application/json`:
+
+```bash
+gurl request https://dummyjson.com/auth/login \
+  -X POST \
+  --json-request \
+  -d '{"username":"emilys","password":"emilyspass"}'
+```
+
+This is equivalent to:
+
+```bash
+gurl request https://dummyjson.com/auth/login \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"username":"emilys","password":"emilyspass"}'
+```
+
+### Form Data Shortcut
+
+Use `--form` to set `Content-Type: application/x-www-form-urlencoded`:
+
+```bash
+gurl request https://api.example.com/form \
+  -X POST \
+  --form \
+  -d 'username=john&password=secret'
+```
+
+<Tabs>
+  <Tab title="JSON Shortcut">
+    ```bash
+    gurl request https://api.example.com/users \
+      -X POST \
+      --json-request \
+      -d '{"name":"John","email":"john@example.com"}'
+    ```
+  </Tab>
+  <Tab title="Form Shortcut">
+    ```bash
+    gurl request https://api.example.com/login \
+      -X POST \
+      --form \
+      -d 'username=john&password=secret'
+    ```
+  </Tab>
+  <Tab title="Manual Header">
+    ```bash
+    gurl request https://api.example.com/data \
+      -X POST \
+      -H "Content-Type: application/xml" \
+      -d '<data><item>value</item></data>'
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+If you specify both a shortcut and a manual Content-Type header, the manual header takes precedence.
+</Note>
+
+## Common Header Patterns
+
+### Accept Header
+
+Specify the response format you want:
+
+```bash
+gurl request https://api.example.com/users \
+  -H "Accept: application/json"
+```
+
+### Custom User Agent
+
+Identify your application:
+
+```bash
+gurl request https://api.example.com/data \
+  -H "User-Agent: MyBot/1.0 (contact@example.com)"
+```
+
+### CORS Headers
+
+For cross-origin requests:
+
+```bash
+gurl request https://api.example.com/data \
+  -H "Origin: https://myapp.com" \
+  -H "Access-Control-Request-Method: POST"
+```
+
+## Complete Authentication Examples
+
+### API with Bearer Token and JSON
+
+```bash
+gurl request https://dummyjson.com/auth/login \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"username":"emilys","password":"emilyspass","expiresInMins":30}'
+```
+
+Then use the returned token:
+
+```bash
+gurl request https://dummyjson.com/auth/me \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN_HERE"
+```
+
+### Protected Resource with Multiple Headers
+
+```bash
+gurl request https://api.example.com/protected/resource \
+  -H "Authorization: Bearer your-token" \
+  -H "Accept: application/json" \
+  -H "X-Request-ID: 123e4567-e89b-12d3-a456-426614174000" \
+  -H "X-Client-Version: 2.1.0" \
+  -v
+```
+
+This command:
+- Includes bearer token authentication
+- Specifies JSON response format
+- Adds request tracking ID
+- Includes client version
+- Shows verbose output for debugging
+
+### Form Submission with Authentication
+
+```bash
+gurl request https://api.example.com/settings \
+  -X POST \
+  -H "Authorization: Bearer token123" \
+  --form \
+  -d 'theme=dark&notifications=true&language=en'
+```
+
+<Tip>
+Combine headers with the `-v` (verbose) flag to see all request headers being sent.
+</Tip>

@@ -1,0 +1,353 @@
+---
+title: "Troubleshooting"
+description: "Common issues and solutions for gurl"
+icon: "wrench"
+---
+
+This guide helps you resolve common issues you may encounter when using gurl.
+
+## Common Issues
+
+<AccordionGroup>
+  <Accordion title="Connection timeout errors" icon="clock">
+    **Problem**: Your request fails with a timeout error.
+
+    **Symptoms**:
+    ```
+    Error: download request failed: Get "https://example.com": context deadline exceeded
+    ```
+
+    **Solutions**:
+
+    1. **Increase the timeout duration** using the `--timeout` flag:
+       ```bash
+       gurl request --timeout 60s https://example.com/api
+       ```
+       The default timeout is 30 seconds. For large responses or slow servers, you may need to increase this.
+
+    2. **For downloads**, use the `-t` flag:
+       ```bash
+       gurl download -t 120s https://example.com/large-file.iso
+       ```
+
+    3. **Check your network connection** and verify the server is responding:
+       ```bash
+       gurl request -v https://example.com/api
+       ```
+       The `-v` flag shows verbose output with timing information.
+
+    <Tip>
+      For very large downloads, consider using `--timeout 0` to disable the timeout entirely (use with caution).
+    </Tip>
+  </Accordion>
+
+  <Accordion title="SSL/TLS certificate errors" icon="shield-halved">
+    **Problem**: SSL certificate verification fails.
+
+    **Symptoms**:
+    ```
+    Error: x509: certificate signed by unknown authority
+    Error: x509: certificate has expired
+    ```
+
+    **Solutions**:
+
+    1. **Use the `-k` or `--insecure` flag** to skip certificate verification (for testing only):
+       ```bash
+       gurl request -k https://self-signed.example.com
+       ```
+
+    2. **For download command**:
+       ```bash
+       gurl download -k https://self-signed.example.com/file.zip
+       ```
+
+    <Warning>
+      The `-k` flag disables SSL certificate verification and should only be used in testing/development environments. Never use this in production as it makes your connection vulnerable to man-in-the-middle attacks.
+    </Warning>
+
+    **Better alternatives for production**:
+    - Update your system's CA certificates
+    - Contact the server administrator to fix their SSL certificate
+    - Add the certificate to your system's trust store
+  </Accordion>
+
+  <Accordion title="Redirect issues" icon="arrow-right-arrow-left">
+    **Problem**: The request doesn't follow redirects or hits redirect limits.
+
+    **Symptoms**:
+    ```
+    Status: 301 Moved Permanently
+    Status: 302 Found
+    ```
+
+    **Solutions**:
+
+    1. **Enable redirect following** with the `-L` or `--follow` flag:
+       ```bash
+       gurl request -L https://example.com/redirect
+       ```
+
+    2. **Adjust the maximum number of redirects** (default is 10):
+       ```bash
+       gurl request -L --max-redirects 20 https://example.com
+       ```
+
+    3. **For downloads**, redirects are followed by default. To disable:
+       ```bash
+       gurl download -n https://example.com/file.zip
+       ```
+       The `-n` flag prevents following redirects.
+
+    4. **See where redirects lead** with verbose mode:
+       ```bash
+       gurl request -v -L https://short.url/abc123
+       ```
+
+    <Note>
+      By default, `gurl request` does NOT follow redirects unless you specify the `-L` flag. The `gurl download` command follows redirects by default.
+    </Note>
+  </Accordion>
+
+  <Accordion title="Download resume problems" icon="rotate-right">
+    **Problem**: Resume functionality not working as expected.
+
+    **Symptoms**:
+    - Download starts from beginning instead of resuming
+    - "Resume not supported by server" warning appears
+
+    **Solutions**:
+
+    1. **Use the `-c` or `--continue` flag** to resume a partial download:
+       ```bash
+       gurl download -c https://example.com/large-file.iso
+       ```
+
+    2. **Check if the server supports range requests**. Not all servers support resuming downloads. If you see:
+       ```
+       Resume not supported by server, restarting download
+       ```
+       The server doesn't support the HTTP Range header.
+
+    3. **Ensure the output filename is consistent**:
+       ```bash
+       gurl download -o myfile.zip -c https://example.com/file.zip
+       ```
+       If you don't specify the same output filename, gurl won't find the partial file.
+
+    4. **Specify the output directory** to ensure files are saved in the same location:
+       ```bash
+       gurl download -P ./downloads/ -c https://example.com/file.zip
+       ```
+
+    <Tip>
+      Use the `-c` flag together with `-o` and `-P` flags to ensure consistent resume behavior across download attempts.
+    </Tip>
+  </Accordion>
+
+  <Accordion title="JSON formatting issues" icon="brackets-curly">
+    **Problem**: JSON responses aren't formatted correctly or parsing fails.
+
+    **Symptoms**:
+    - Malformed JSON output
+    - Missing or incorrect JSON formatting
+
+    **Solutions**:
+
+    1. **Enable JSON formatting** explicitly with the `-j` flag:
+       ```bash
+       gurl request -j https://api.example.com/data
+       ```
+
+    2. **For JSON requests**, set the Content-Type header:
+       ```bash
+       gurl request --json-request -X POST -d '{"key":"value"}' https://api.example.com
+       ```
+       This automatically sets `Content-Type: application/json`.
+
+    3. **Disable automatic JSON pretty-printing** if needed:
+       ```bash
+       gurl request --no-pretty https://api.example.com/data
+       ```
+
+    4. **For complex JSON**, use proper quoting**:
+       ```bash
+       gurl request -X POST \
+         -H "Content-Type: application/json" \
+         -d '{"username":"user","password":"pass"}' \
+         https://api.example.com/login
+       ```
+
+    5. **If JSON appears on one line**, the response might be compressed. Check headers:
+       ```bash
+       gurl request -v -j https://api.example.com/data
+       ```
+
+    <Note>
+      gurl automatically detects and formats JSON responses unless you use the `--no-pretty` flag.
+    </Note>
+  </Accordion>
+
+  <Accordion title="Permission errors for downloads" icon="lock">
+    **Problem**: Cannot save downloaded files due to permission errors.
+
+    **Symptoms**:
+    ```
+    Error: failed to create output directory: permission denied
+    Error: failed to create output file: permission denied
+    ```
+
+    **Solutions**:
+
+    1. **Check directory permissions** and ensure you have write access:
+       ```bash
+       ls -la /path/to/directory/
+       ```
+
+    2. **Use a directory where you have write permissions**:
+       ```bash
+       gurl download -P ~/downloads/ https://example.com/file.zip
+       ```
+
+    3. **Create the directory first** with appropriate permissions:
+       ```bash
+       mkdir -p ~/my-downloads
+       gurl download -P ~/my-downloads/ https://example.com/file.zip
+       ```
+
+    4. **Avoid system directories** like `/usr/local`, `/opt`, etc. unless running with elevated privileges.
+
+    5. **For the current directory**, ensure you have write permissions:
+       ```bash
+       gurl download -o myfile.zip https://example.com/file.zip
+       ```
+
+    <Warning>
+      Avoid using `sudo` with gurl unless absolutely necessary. Instead, download to a user-owned directory.
+    </Warning>
+  </Accordion>
+
+  <Accordion title="Retry failures" icon="arrows-rotate">
+    **Problem**: Downloads fail even with retries enabled.
+
+    **Symptoms**:
+    ```
+    Download attempt 1 failed: ...
+    Download attempt 2 failed: ...
+    Download failed after 3 attempts
+    ```
+
+    **Solutions**:
+
+    1. **Increase retry attempts** (default is 3):
+       ```bash
+       gurl download --tries 5 https://example.com/file.zip
+       ```
+
+    2. **Increase delay between retries** (default is 2 seconds):
+       ```bash
+       gurl download --tries 5 --retry-delay 5s https://example.com/file.zip
+       ```
+
+    3. **Combine with resume capability**:
+       ```bash
+       gurl download -c --tries 10 --retry-delay 10s https://example.com/large-file.iso
+       ```
+
+    4. **Disable retries** if not needed:
+       ```bash
+       gurl download --tries 0 https://example.com/file.zip
+       ```
+
+    <Tip>
+      For unstable connections, combine retries with resume: `gurl download -c --tries 10 --retry-delay 5s URL`
+    </Tip>
+  </Accordion>
+
+  <Accordion title="Custom header issues" icon="heading">
+    **Problem**: Custom headers aren't being sent correctly.
+
+    **Solutions**:
+
+    1. **Use the `-H` flag** with proper formatting:
+       ```bash
+       gurl request -H "Authorization: Bearer token123" https://api.example.com
+       ```
+
+    2. **For multiple headers**, use multiple `-H` flags:
+       ```bash
+       gurl request \
+         -H "Authorization: Bearer token123" \
+         -H "Accept: application/json" \
+         -H "X-Custom-Header: value" \
+         https://api.example.com
+       ```
+
+    3. **Use shortcuts for common Content-Type headers**:
+       - For JSON: `--json-request`
+       - For forms: `--form`
+
+    4. **Verify headers are sent** with verbose mode:
+       ```bash
+       gurl request -v -H "X-Custom: value" https://api.example.com
+       ```
+
+    <Note>
+      gurl automatically sets `User-Agent: gurl/1.0` if no User-Agent header is provided.
+    </Note>
+  </Accordion>
+</AccordionGroup>
+
+## Getting Help
+
+If you're still experiencing issues:
+
+<CardGroup cols={2}>
+  <Card title="Check verbose output" icon="magnifying-glass">
+    Use the `-v` flag to see detailed request/response information:
+    ```bash
+    gurl request -v https://example.com
+    ```
+  </Card>
+
+  <Card title="Report a bug" icon="bug">
+    Found a bug? Report it on [GitHub Issues](https://github.com/geekyharsh05/gurl/issues)
+  </Card>
+</CardGroup>
+
+## Debug Checklist
+
+Before reporting an issue, try these steps:
+
+<Steps>
+  <Step title="Enable verbose mode">
+    Run your command with `-v` flag to see detailed output:
+    ```bash
+    gurl request -v https://example.com
+    ```
+  </Step>
+
+  <Step title="Check the basics">
+    - Verify the URL is correct and accessible
+    - Ensure you have network connectivity
+    - Check if the server is responding
+  </Step>
+
+  <Step title="Try with minimal flags">
+    Start with the simplest command and add flags one by one:
+    ```bash
+    gurl request https://example.com
+    ```
+  </Step>
+
+  <Step title="Review the error message">
+    Error messages usually indicate the problem:
+    - `timeout` → Increase `--timeout`
+    - `certificate` → Use `-k` for testing
+    - `permission denied` → Check directory permissions
+  </Step>
+</Steps>
+
+<Tip>
+  Most issues can be resolved by carefully reading error messages and using the appropriate flags documented above.
+</Tip>

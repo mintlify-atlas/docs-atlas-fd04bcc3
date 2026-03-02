@@ -1,0 +1,247 @@
+---
+title: "gurl download"
+description: "Download files with wget-like functionality including resume and retry capabilities"
+---
+
+## Overview
+
+The `download` command provides wget-like functionality for downloading files with features like progress tracking, resume capability, retry on failure, and more.
+
+## Syntax
+
+```bash
+gurl download [URL] [flags]
+```
+
+## Flags
+
+<ParamField path="output" type="string">
+  Save file with the specified name
+  
+  **Shorthand:** `-o`
+  
+  If not specified, the filename will be extracted from the URL
+</ParamField>
+
+<ParamField path="directory" type="string">
+  Save files to the specified directory
+  
+  **Shorthand:** `-P`
+  
+  Directory will be created if it doesn't exist. Path can be relative or absolute
+</ParamField>
+
+<ParamField path="continue" type="boolean" default="false">
+  Resume getting a partially-downloaded file
+  
+  **Shorthand:** `-c`
+  
+  Useful for resuming interrupted downloads of large files
+</ParamField>
+
+<ParamField path="quiet" type="boolean" default="false">
+  Quiet mode - don't show progress bar
+  
+  **Shorthand:** `-q`
+</ParamField>
+
+<ParamField path="insecure" type="boolean" default="false">
+  Allow insecure server connections (skip TLS certificate verification)
+  
+  **Shorthand:** `-k`
+</ParamField>
+
+<ParamField path="timeout" type="duration" default="30s">
+  Set timeout for download operation
+  
+  **Shorthand:** `-t`
+  
+  Examples: `60s`, `5m`, `1h`
+</ParamField>
+
+<ParamField path="no-redirect" type="boolean" default="false">
+  Don't follow HTTP redirects
+  
+  **Shorthand:** `-n`
+</ParamField>
+
+<ParamField path="max-redirects" type="int" default="10">
+  Maximum number of redirects to follow
+  
+  Only applies when redirects are enabled (default behavior)
+</ParamField>
+
+<ParamField path="tries" type="int" default="3">
+  Number of retry attempts on failure
+  
+  **Shorthand:** `-r`
+  
+  Set to 0 for no retries. Useful for unstable connections
+</ParamField>
+
+<ParamField path="retry-delay" type="duration" default="2s">
+  Delay between retry attempts
+  
+  Examples: `5s`, `1m`
+</ParamField>
+
+## Examples
+
+### Basic File Download
+
+Download a file using the filename from the URL:
+
+```bash
+gurl download https://example.com/file.zip
+```
+
+**Output:**
+```
+Downloading file.zip...
+[████████████████████] 100% | 10 MB/10 MB | 2.5 MB/s | ETA: 0s
+Download completed: file.zip
+```
+
+### Specify Output Filename
+
+Save the downloaded file with a custom name:
+
+```bash
+gurl download -o myfile.zip https://example.com/file.zip
+```
+
+### Save to Specific Directory
+
+Download and save to a specific directory:
+
+```bash
+gurl download -P ./downloads/ https://example.com/file.zip
+```
+
+Combine output name with directory:
+
+```bash
+gurl download -P ./downloads/ -o custom-name.zip https://example.com/file.zip
+```
+
+### Resume Partial Download
+
+Resume a previously interrupted download:
+
+```bash
+gurl download -c https://example.com/large-file.iso
+```
+
+**Output:**
+```
+Resuming download from 5.2 GB...
+[████████░░░░░░░░░░░░] 45% | 4.5 GB/10 GB | 3.1 MB/s | ETA: 25m
+```
+
+### Quiet Mode
+
+Download without showing the progress bar:
+
+```bash
+gurl download -q https://example.com/file.zip
+```
+
+Useful for scripts and automation.
+
+### Retry on Failure
+
+Attempt download with 5 retries and 5-second delay between attempts:
+
+```bash
+gurl download --tries 5 --retry-delay 5s https://example.com/file.zip
+```
+
+**Output:**
+```
+Download attempt 1 failed: connection timeout
+Retrying in 5s...
+Download attempt 2 succeeded
+[████████████████████] 100% | 10 MB/10 MB
+```
+
+### Download with Custom Timeout
+
+Set a longer timeout for large files or slow connections:
+
+```bash
+gurl download -t 60s https://example.com/large-file.iso
+```
+
+For very large files:
+
+```bash
+gurl download -t 5m https://example.com/huge-archive.tar.gz
+```
+
+### Download from HTTPS with Self-Signed Certificate
+
+Skip certificate verification for testing:
+
+```bash
+gurl download -k https://internal-server.local/file.zip
+```
+
+### Disable Redirects
+
+Prevent following redirects:
+
+```bash
+gurl download -n https://example.com/file.zip
+```
+
+### Advanced: Robust Download Configuration
+
+Combine multiple options for a robust download setup:
+
+```bash
+gurl download \
+  -P ./downloads/ \
+  -o ubuntu-22.04.iso \
+  -c \
+  --tries 10 \
+  --retry-delay 3s \
+  -t 5m \
+  https://releases.ubuntu.com/22.04/ubuntu-22.04-desktop-amd64.iso
+```
+
+This command:
+- Saves to `./downloads/` directory
+- Names the file `ubuntu-22.04.iso`
+- Resumes if interrupted
+- Retries up to 10 times with 3s delay
+- Sets 5-minute timeout
+
+## Progress Bar
+
+By default, the download command shows a progress bar with:
+
+- **Visual progress indicator**: ASCII progress bar
+- **Percentage complete**: 0-100%
+- **Downloaded/Total size**: e.g., "5 MB/10 MB"
+- **Download speed**: Current transfer rate
+- **ETA**: Estimated time remaining
+
+### Example Progress Output
+
+```
+Downloading ubuntu-22.04.iso...
+[██████████░░░░░░░░░░] 50% | 1.8 GB/3.6 GB | 4.2 MB/s | ETA: 7m 12s
+```
+
+## Return Codes
+
+- **0**: Download completed successfully
+- **1**: Download failed after all retry attempts
+
+## Tips
+
+- Use `-c` to resume large downloads that were interrupted
+- Combine `--tries` with `--retry-delay` for unstable network connections
+- Use `-q` in scripts to avoid cluttering output
+- The progress bar automatically updates in real-time
+- Downloaded files are saved atomically - partial downloads won't corrupt existing files

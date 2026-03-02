@@ -1,0 +1,382 @@
+---
+title: "Comparison with curl and wget"
+description: "Compare gurl with curl and wget to choose the right tool"
+icon: "code-compare"
+---
+
+Understand how gurl compares to traditional HTTP clients and when to use each tool.
+
+## Feature Comparison
+
+Here's a comprehensive comparison of gurl, curl, and wget:
+
+| Feature | gurl | curl | wget |
+|---------|------|------|------|
+| **HTTP Methods** | All methods (GET, POST, PUT, DELETE, etc.) | All methods | GET, POST only |
+| **JSON Auto-formatting** | ✅ Built-in automatic | ❌ Manual with `jq` | ❌ Not supported |
+| **JSON Request Helper** | ✅ `--json-request` flag | ❌ Manual headers | ❌ Not supported |
+| **Download Resume** | ✅ `-c` flag | ✅ `-C -` flag | ✅ `-c` flag |
+| **Progress Bar** | ✅ Detailed with ETA | ✅ Basic | ✅ Basic |
+| **Retry Logic** | ✅ `--tries` with exponential backoff | ✅ `--retry` flag | ✅ `--tries` flag |
+| **Follow Redirects** | ✅ `-L` flag | ✅ `-L` flag | ✅ Default on |
+| **Colored Output** | ✅ Built-in | ❌ Not supported | ❌ Not supported |
+| **Verbose Mode** | ✅ `-v` with timing | ✅ `-v` flag | ✅ `-v` flag |
+| **Custom Headers** | ✅ `-H` flag | ✅ `-H` flag | ✅ `--header` |
+| **Timeout Control** | ✅ `--timeout` flag | ✅ `--max-time` | ✅ `--timeout` |
+| **Insecure SSL** | ✅ `-k` flag | ✅ `-k` flag | ✅ `--no-check-certificate` |
+| **Parallel Downloads** | ⚠️ Planned | ❌ Manual scripting | ❌ Not supported |
+| **Syntax Simplicity** | ✅ Very intuitive | ⚠️ Complex options | ⚠️ Moderate |
+| **Response to File** | ✅ `-o` flag | ✅ `-o` flag | ✅ `-O` flag |
+| **Wait Before Request** | ✅ `--wait-time` | ❌ Manual `sleep` | ✅ `--wait` |
+| **Max Redirects** | ✅ `--max-redirects` | ✅ `--max-redirs` | ✅ `--max-redirect` |
+| **Default Behavior** | Modern, user-friendly | Powerful, complex | Download-focused |
+
+## When to Use Each Tool
+
+<CardGroup cols={3}>
+  <Card title="Use gurl when" icon="rocket" color="#00D4AA">
+    - Working with **JSON APIs**
+    - You want **colored, formatted output**
+    - You need **simple, intuitive syntax**
+    - Building **modern applications**
+    - You prefer **automatic JSON detection**
+    - Learning HTTP clients for the first time
+  </Card>
+
+  <Card title="Use curl when" icon="terminal" color="#F97316">
+    - You need **maximum compatibility**
+    - Working on **legacy systems**
+    - Require **advanced protocols** (FTP, SMTP, etc.)
+    - Using **complex authentication** schemes
+    - Need **shell scripting** in production
+    - Already familiar with curl syntax
+  </Card>
+
+  <Card title="Use wget when" icon="download" color="#3B82F6">
+    - **Recursive downloads** are needed
+    - Downloading **entire websites**
+    - Working in **restricted environments**
+    - Need **background downloads**
+    - Mirroring websites
+    - Simple file downloads only
+  </Card>
+</CardGroup>
+
+## Command Examples
+
+See how common tasks compare across all three tools:
+
+### Basic GET Request
+
+<CodeGroup>
+```bash gurl
+gurl request https://api.example.com/users
+```
+
+```bash curl
+curl https://api.example.com/users
+```
+
+```bash wget
+wget -qO- https://api.example.com/users
+```
+</CodeGroup>
+
+### POST JSON Data
+
+<CodeGroup>
+```bash gurl
+gurl request https://api.example.com/users \
+  -X POST \
+  --json-request \
+  -d '{"name":"John","email":"john@example.com"}'
+```
+
+```bash curl
+curl https://api.example.com/users \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"name":"John","email":"john@example.com"}'
+```
+
+```bash wget
+# wget has limited POST support
+wget --post-data='{"name":"John","email":"john@example.com"}' \
+  --header="Content-Type: application/json" \
+  -qO- https://api.example.com/users
+```
+</CodeGroup>
+
+<Note>
+  Notice how gurl's `--json-request` flag simplifies JSON POST requests compared to curl's manual header setting.
+</Note>
+
+### Download File with Progress
+
+<CodeGroup>
+```bash gurl
+gurl download https://example.com/file.zip
+```
+
+```bash curl
+curl -O https://example.com/file.zip
+```
+
+```bash wget
+wget https://example.com/file.zip
+```
+</CodeGroup>
+
+### Resume Interrupted Download
+
+<CodeGroup>
+```bash gurl
+gurl download -c https://example.com/large-file.iso
+```
+
+```bash curl
+curl -C - -O https://example.com/large-file.iso
+```
+
+```bash wget
+wget -c https://example.com/large-file.iso
+```
+</CodeGroup>
+
+### Custom Headers with Authentication
+
+<CodeGroup>
+```bash gurl
+gurl request https://api.example.com/protected \
+  -H "Authorization: Bearer token123" \
+  -H "Accept: application/json"
+```
+
+```bash curl
+curl https://api.example.com/protected \
+  -H "Authorization: Bearer token123" \
+  -H "Accept: application/json"
+```
+
+```bash wget
+wget --header="Authorization: Bearer token123" \
+  --header="Accept: application/json" \
+  -qO- https://api.example.com/protected
+```
+</CodeGroup>
+
+### Follow Redirects
+
+<CodeGroup>
+```bash gurl
+gurl request -L https://short.url/abc123
+```
+
+```bash curl
+curl -L https://short.url/abc123
+```
+
+```bash wget
+# wget follows redirects by default
+wget -qO- https://short.url/abc123
+```
+</CodeGroup>
+
+### Ignore SSL Certificate Errors
+
+<CodeGroup>
+```bash gurl
+gurl request -k https://self-signed.example.com
+```
+
+```bash curl
+curl -k https://self-signed.example.com
+```
+
+```bash wget
+wget --no-check-certificate -qO- https://self-signed.example.com
+```
+</CodeGroup>
+
+<Warning>
+  The `-k` flag (insecure) should only be used in development/testing. Never use in production.
+</Warning>
+
+### Download with Retry Logic
+
+<CodeGroup>
+```bash gurl
+gurl download --tries 5 --retry-delay 3s https://example.com/file.zip
+```
+
+```bash curl
+curl --retry 5 --retry-delay 3 -O https://example.com/file.zip
+```
+
+```bash wget
+wget --tries=5 --waitretry=3 https://example.com/file.zip
+```
+</CodeGroup>
+
+### Verbose Output with Timing
+
+<CodeGroup>
+```bash gurl
+gurl request -v https://api.example.com
+```
+
+```bash curl
+curl -v -w "\nTime: %{time_total}s\n" https://api.example.com
+```
+
+```bash wget
+wget -v https://api.example.com
+```
+</CodeGroup>
+
+## Key Advantages of gurl
+
+<Accordion title="1. Automatic JSON Handling">
+  gurl automatically detects and formats JSON responses without additional tools:
+
+  **gurl**:
+  ```bash
+  gurl request https://api.example.com/users
+  # Automatically formatted, colored JSON output
+  ```
+
+  **curl** (requires jq):
+  ```bash
+  curl https://api.example.com/users | jq
+  # Need to pipe through jq for formatting
+  ```
+</Accordion>
+
+<Accordion title="2. Intuitive Syntax">
+  gurl uses clear, descriptive commands:
+
+  **gurl**:
+  ```bash
+  gurl request -X POST --json-request -d '{"key":"value"}' URL
+  gurl download -c -o myfile.zip URL
+  ```
+
+  **curl**:
+  ```bash
+  curl -X POST -H "Content-Type: application/json" -d '{"key":"value"}' URL
+  curl -C - -o myfile.zip URL
+  ```
+</Accordion>
+
+<Accordion title="3. Built-in Colored Output">
+  gurl provides colored, easy-to-read output by default:
+  - Color-coded status codes
+  - Formatted headers
+  - Pretty-printed JSON
+  - Progress bars with ETA
+
+  No additional tools or configuration needed!
+</Accordion>
+
+<Accordion title="4. Modern Defaults">
+  gurl comes with sensible defaults for modern development:
+  - 30-second default timeout
+  - Automatic retry with exponential backoff
+  - Maximum 10 redirects
+  - User-friendly error messages
+  - Automatic content-type detection
+</Accordion>
+
+## Migration from curl to gurl
+
+Transitioning from curl to gurl is straightforward:
+
+<Steps>
+  <Step title="Replace curl with gurl request">
+    ```bash
+    # Before (curl)
+    curl https://api.example.com
+
+    # After (gurl)
+    gurl request https://api.example.com
+    ```
+  </Step>
+
+  <Step title="Simplify JSON requests">
+    ```bash
+    # Before (curl)
+    curl -X POST -H "Content-Type: application/json" -d '{"key":"val"}' URL
+
+    # After (gurl)
+    gurl request -X POST --json-request -d '{"key":"val"}' URL
+    ```
+  </Step>
+
+  <Step title="Use dedicated download command">
+    ```bash
+    # Before (curl)
+    curl -C - -O https://example.com/file.zip
+
+    # After (gurl)
+    gurl download -c https://example.com/file.zip
+    ```
+  </Step>
+
+  <Step title="Enjoy automatic formatting">
+    Remove `| jq` from your commands - gurl handles JSON formatting automatically!
+
+    ```bash
+    # Before (curl)
+    curl https://api.example.com/data | jq
+
+    # After (gurl)
+    gurl request https://api.example.com/data
+    # JSON is automatically formatted!
+    ```
+  </Step>
+</Steps>
+
+## Quick Reference Table
+
+Common curl flags and their gurl equivalents:
+
+| Task | curl | gurl |
+|------|------|------|
+| **Basic GET** | `curl URL` | `gurl request URL` |
+| **POST data** | `curl -d "data" URL` | `gurl request -d "data" URL` |
+| **POST JSON** | `curl -H "Content-Type: application/json" -d '{}'` | `gurl request --json-request -d '{}'` |
+| **Custom method** | `curl -X PUT URL` | `gurl request -X PUT URL` |
+| **Headers** | `curl -H "Key: Value"` | `gurl request -H "Key: Value"` |
+| **Follow redirects** | `curl -L URL` | `gurl request -L URL` |
+| **Save to file** | `curl -o file URL` | `gurl request -o file URL` |
+| **Download** | `curl -O URL` | `gurl download URL` |
+| **Resume download** | `curl -C - -O URL` | `gurl download -c URL` |
+| **Verbose** | `curl -v URL` | `gurl request -v URL` |
+| **Insecure SSL** | `curl -k URL` | `gurl request -k URL` |
+| **Timeout** | `curl --max-time 30` | `gurl request --timeout 30s` |
+| **Retry** | `curl --retry 3` | `gurl download --tries 3` |
+
+<Tip>
+  Most curl flags work similarly in gurl. The main difference is using `gurl request` instead of just `curl`.
+</Tip>
+
+## Conclusion
+
+While curl and wget are powerful, battle-tested tools, **gurl offers a modern, user-friendly alternative** that:
+
+- Makes working with JSON APIs effortless
+- Provides beautiful, colored output out of the box
+- Uses intuitive syntax that's easy to remember
+- Includes sensible defaults for modern development
+
+For new projects and API development, gurl provides the best developer experience. For maximum compatibility and advanced protocols, curl remains the gold standard.
+
+<CardGroup cols={2}>
+  <Card title="Getting Started" icon="rocket" href="/quickstart">
+    Start using gurl in minutes
+  </Card>
+
+  <Card title="Command Reference" icon="book" href="/reference/request-flags">
+    View all available flags and options
+  </Card>
+</CardGroup>

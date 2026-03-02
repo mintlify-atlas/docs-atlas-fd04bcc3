@@ -1,0 +1,275 @@
+---
+title: "gurl request"
+description: "Make HTTP requests with custom headers, methods, and data"
+---
+
+## Overview
+
+The `request` command is the primary command for making HTTP requests with gurl. It supports all HTTP methods, custom headers, request bodies, and various output formats.
+
+## Syntax
+
+```bash
+gurl request [URL] [flags]
+```
+
+## Flags
+
+<ParamField path="method" type="string" default="GET">
+  HTTP method to use for the request
+  
+  **Shorthand:** `-X`
+  
+  Supported methods: GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS
+</ParamField>
+
+<ParamField path="data" type="string">
+  Request body data to send with the request
+  
+  **Shorthand:** `-d`
+  
+  For JSON data, combine with `--json-request` or manually set Content-Type header
+</ParamField>
+
+<ParamField path="header" type="string[]">
+  Custom headers to include in the request
+  
+  **Shorthand:** `-H`
+  
+  Can be specified multiple times for multiple headers. Format: `"Header-Name: value"`
+</ParamField>
+
+<ParamField path="verbose" type="boolean" default="false">
+  Show verbose output including timing information
+  
+  **Shorthand:** `-v`
+</ParamField>
+
+<ParamField path="output" type="string">
+  Write response to the specified file
+  
+  **Shorthand:** `-o`
+</ParamField>
+
+<ParamField path="json" type="boolean" default="false">
+  Format response as JSON
+  
+  **Shorthand:** `-j`
+</ParamField>
+
+<ParamField path="follow" type="boolean" default="false">
+  Follow HTTP redirects
+  
+  **Shorthand:** `-L`
+</ParamField>
+
+<ParamField path="json-request" type="boolean" default="false">
+  Set Content-Type header to `application/json`
+  
+  Shortcut for `-H "Content-Type: application/json"`
+</ParamField>
+
+<ParamField path="form" type="boolean" default="false">
+  Set Content-Type header to `application/x-www-form-urlencoded`
+  
+  Shortcut for `-H "Content-Type: application/x-www-form-urlencoded"`
+</ParamField>
+
+<ParamField path="no-pretty" type="boolean" default="false">
+  Disable automatic JSON formatting in responses
+</ParamField>
+
+### Global Flags
+
+These flags are inherited from the root command and can be used with `request`:
+
+<ParamField path="insecure" type="boolean" default="false">
+  Allow insecure server connections (skip TLS certificate verification)
+  
+  **Shorthand:** `-k`
+</ParamField>
+
+<ParamField path="timeout" type="duration" default="30s">
+  Request timeout duration
+  
+  Examples: `5s`, `1m`, `500ms`
+</ParamField>
+
+<ParamField path="max-redirects" type="int" default="10">
+  Maximum number of redirects to follow when using `--follow`
+</ParamField>
+
+<ParamField path="wait-time" type="duration" default="0">
+  Wait for the specified duration before making the request
+  
+  Examples: `3s`, `1m30s`
+</ParamField>
+
+<ParamField path="no-color" type="boolean" default="false">
+  Disable colorized output
+</ParamField>
+
+## Examples
+
+### Basic GET Request
+
+Make a simple GET request to an API endpoint:
+
+```bash
+gurl request https://dummyjson.com/products
+```
+
+### POST Request with JSON Data
+
+Send JSON data in a POST request:
+
+```bash
+gurl request https://dummyjson.com/auth/login \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"username":"emilys","password":"emilyspass","expiresInMins":30}'
+```
+
+Or use the `--json-request` shortcut:
+
+```bash
+gurl request https://dummyjson.com/auth/login \
+  -X POST \
+  --json-request \
+  -d '{"username":"emilys","password":"emilyspass"}'
+```
+
+### PUT Request
+
+Update a resource with PUT:
+
+```bash
+gurl request -X PUT https://dummyjson.com/products/1
+```
+
+### DELETE Request
+
+Delete a resource:
+
+```bash
+gurl request -X DELETE https://dummyjson.com/products/1
+```
+
+### Custom Headers
+
+Include authorization or other custom headers:
+
+```bash
+gurl request https://dummyjson.com/auth/me \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN_HERE"
+```
+
+Multiple headers:
+
+```bash
+gurl request https://api.example.com/data \
+  -H "Authorization: Bearer token123" \
+  -H "X-Custom-Header: value" \
+  -H "Accept: application/json"
+```
+
+### Format JSON Response
+
+Automatically format JSON responses for readability:
+
+```bash
+gurl request -j https://dummyjson.com/products/1
+```
+
+### Save Response to File
+
+Write the response body to a file:
+
+```bash
+gurl request -o response.json https://dummyjson.com/users
+```
+
+Download a file:
+
+```bash
+gurl request -o myfile.zip https://example.com/file.zip
+```
+
+### Follow Redirects
+
+Automatically follow HTTP redirects:
+
+```bash
+gurl request -L https://dummyjson.com/http/200
+```
+
+### Verbose Output
+
+Show detailed timing and request information:
+
+```bash
+gurl request -v https://dummyjson.com/test
+```
+
+### Insecure Connections
+
+Skip SSL certificate verification (useful for testing):
+
+```bash
+gurl request -k https://self-signed.example.com
+```
+
+### Wait Before Request
+
+Wait for a specified duration before making the request:
+
+```bash
+gurl request --wait-time 5s https://dummyjson.com/test
+```
+
+With verbose output to see the wait message:
+
+```bash
+gurl request -v --wait-time 3s https://dummyjson.com/test
+```
+
+### Form Data
+
+Send form-encoded data:
+
+```bash
+gurl request -X POST https://example.com/api/form \
+  --form \
+  -d "username=john&email=john@example.com"
+```
+
+## Output Format
+
+By default, `gurl request` automatically detects and formats JSON responses. The output includes:
+
+- Colorized status code and headers
+- Formatted response body (JSON is auto-prettified)
+- Timing information in verbose mode
+
+### Example Output
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 125
+
+{
+  "id": 1,
+  "title": "iPhone 9",
+  "description": "An apple mobile which is nothing like apple",
+  "price": 549,
+  "rating": 4.69
+}
+```
+
+## Tips
+
+- JSON responses are automatically formatted unless you use `--no-pretty`
+- Use `-v` (verbose) to see request timing and detailed information
+- Combine flags: `gurl request -vjL` for verbose, JSON formatting, and follow redirects
+- Set `GURL_NO_BANNER=1` environment variable to hide the welcome banner

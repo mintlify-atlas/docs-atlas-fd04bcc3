@@ -1,0 +1,66 @@
+---
+title: Global Flags
+description: Persistent flags available across all gurl commands
+---
+
+Global flags are persistent flags that can be used with any gurl command. These flags affect the behavior of HTTP requests and general application output.
+
+## Flags
+
+<ParamField path="-k, --insecure" type="boolean" default="false">
+  Allow insecure server connections when using SSL/TLS. This disables certificate verification and should only be used for testing purposes.
+</ParamField>
+
+<ParamField path="--timeout" type="duration" default="30s">
+  Request timeout duration. Specifies the maximum time to wait for a request to complete. Accepts time duration format (e.g., 30s, 1m, 500ms).
+</ParamField>
+
+<ParamField path="--max-redirects" type="integer" default="10">
+  Maximum number of redirects to follow. When redirect following is enabled, this limits the number of consecutive redirects that will be followed.
+</ParamField>
+
+<ParamField path="--wait-time" type="duration" default="0">
+  Wait for the specified duration before making the request. Useful for testing rate limits or scheduled requests. Accepts time duration format (e.g., 5s, 1m).
+</ParamField>
+
+<ParamField path="--no-color" type="boolean" default="false">
+  Disable colorized output. Useful when piping output to files or when terminal doesn't support colors.
+</ParamField>
+
+## Usage Examples
+
+### Allow Insecure Connections
+
+```bash
+gurl request https://self-signed.example.com -k
+```
+
+### Set Custom Timeout
+
+```bash
+gurl request https://api.example.com --timeout 5s
+```
+
+### Limit Redirects
+
+```bash
+gurl request https://example.com --max-redirects 3 -L
+```
+
+### Wait Before Request
+
+```bash
+gurl request https://api.example.com --wait-time 2s
+```
+
+### Disable Colors
+
+```bash
+gurl request https://api.example.com --no-color > output.txt
+```
+
+### Combining Multiple Flags
+
+```bash
+gurl request https://api.example.com -k --timeout 10s --no-color
+```

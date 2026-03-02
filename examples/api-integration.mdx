@@ -1,0 +1,167 @@
+---
+title: 'API Integration'
+description: 'Complete API workflow examples with authentication and JSON handling'
+---
+
+## Complete Authentication Workflow
+
+This example demonstrates a complete API integration workflow using the dummyjson.com API.
+
+### Step 1: Login and Get Access Token
+
+First, authenticate to get an access token:
+
+```bash
+gurl request https://dummyjson.com/auth/login \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"username":"emilys","password":"emilyspass","expiresInMins":30}'
+```
+
+**Response:**
+```json
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJlbWlseXMiLCJlbWFpbCI6ImVtaWx5LmpvaG5zb25AeC5kdW1teWpzb24uY29tIiwiZmlyc3ROYW1lIjoiRW1pbHkiLCJsYXN0TmFtZSI6IkpvaG5zb24iLCJnZW5kZXIiOiJmZW1hbGUiLCJpbWFnZSI6Imh0dHBzOi8vZHVtbXlqc29uLmNvbS9pY29uL2VtaWx5cy8xMjgiLCJpYXQiOjE3MTY0NTk5MDQsImV4cCI6MTcxNjQ2MTcwNH0.x1JMBrIW4Gmw4K6ePmDSPLPWvlR8Z9g7pqPUGzV_1yY",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJlbWlseXMiLCJlbWFpbCI6ImVtaWx5LmpvaG5zb25AeC5kdW1teWpzb24uY29tIiwiZmlyc3ROYW1lIjoiRW1pbHkiLCJsYXN0TmFtZSI6IkpvaG5zb24iLCJnZW5kZXIiOiJmZW1hbGUiLCJpbWFnZSI6Imh0dHBzOi8vZHVtbXlqc29uLmNvbS9pY29uL2VtaWx5cy8xMjgiLCJpYXQiOjE3MTY0NTk5MDQsImV4cCI6MTcxOTAzODcwNH0.k1J4VFfHPmz4P6ePmDSPLPWvlR8Z9g7pqPUGzV_1yY",
+  "id": 1,
+  "username": "emilys",
+  "email": "emily.johnson@x.dummyjson.com",
+  "firstName": "Emily",
+  "lastName": "Johnson",
+  "gender": "female",
+  "image": "https://dummyjson.com/icon/emilys/128"
+}
+```
+
+### Step 2: Use Access Token for Authenticated Requests
+
+Use the access token from the login response to make authenticated requests:
+
+```bash
+gurl request https://dummyjson.com/auth/me \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+Replace the `...` with your actual access token received from the login response.
+
+**Response:**
+```json
+{
+  "id": 1,
+  "username": "emilys",
+  "email": "emily.johnson@x.dummyjson.com",
+  "firstName": "Emily",
+  "lastName": "Johnson",
+  "gender": "female",
+  "image": "https://dummyjson.com/icon/emilys/128"
+}
+```
+
+## JSON Request and Response Handling
+
+### Sending JSON Data
+
+When sending JSON data, always set the appropriate Content-Type header:
+
+```bash
+gurl request https://dummyjson.com/auth/login \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"username":"emilys","password":"emilyspass","expiresInMins":30}'
+```
+
+Alternatively, use the `--json-request` flag to automatically set the Content-Type:
+
+```bash
+gurl request https://dummyjson.com/auth/login \
+  -X POST \
+  --json-request \
+  -d '{"username":"emilys","password":"emilyspass","expiresInMins":30}'
+```
+
+### Formatting JSON Responses
+
+Get pretty-printed JSON output:
+
+```bash
+gurl request -j https://dummyjson.com/products/1
+```
+
+### Saving JSON to File
+
+Save API responses for later use:
+
+```bash
+# Save authentication token
+gurl request -j -o auth.json https://dummyjson.com/auth/login \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"username":"emilys","password":"emilyspass","expiresInMins":30}'
+
+# Save user data
+gurl request -j -o user.json https://dummyjson.com/auth/me \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+## Error Handling
+
+### Verbose Mode for Debugging
+
+Use verbose mode to see detailed error information:
+
+```bash
+gurl request -v https://dummyjson.com/auth/me \
+  -H "Authorization: Bearer INVALID_TOKEN"
+```
+
+This will show:
+- Full request headers
+- Response status code
+- Response headers
+- Error message body
+- Timing information
+
+### Following Redirects
+
+Some APIs use redirects. Follow them automatically:
+
+```bash
+gurl request -L https://dummyjson.com/http/200
+```
+
+You can also limit the number of redirects:
+
+```bash
+gurl request -L --max-redirects 5 https://dummyjson.com/http/200
+```
+
+## Practical API Integration Example
+
+Here's a complete workflow for working with a REST API:
+
+```bash
+# 1. Login and save credentials
+gurl request -j -o auth.json https://dummyjson.com/auth/login \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"username":"emilys","password":"emilyspass","expiresInMins":30}'
+
+# 2. Extract token (manually or with jq)
+# TOKEN=$(jq -r '.accessToken' auth.json)
+
+# 3. Make authenticated requests
+gurl request -j https://dummyjson.com/auth/me \
+  -H "Authorization: Bearer $TOKEN"
+
+# 4. Update resources
+gurl request -X PUT https://dummyjson.com/products/1 \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Updated Product"}'
+
+# 5. Create new resources
+gurl request -X POST https://dummyjson.com/products \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"New Product","price":99.99}'
+```

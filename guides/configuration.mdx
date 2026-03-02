@@ -1,0 +1,291 @@
+---
+title: Configuration Options
+description: Global flags, environment variables, and configuration options for gurl
+---
+
+gurl provides both command-specific flags and global options that apply across all commands.
+
+## Global Flags
+
+Global flags are available for all gurl commands and are specified using the `PersistentFlags` in the CLI.
+
+### Insecure Mode
+
+Skip TLS certificate verification for testing environments:
+
+```bash
+gurl request -k https://self-signed.example.com
+```
+
+**Flag:** `-k, --insecure`
+
+<Warning>
+Only use this in development environments. Never skip certificate verification in production.
+</Warning>
+
+### Timeout
+
+Set the request timeout duration:
+
+```bash
+gurl request --timeout 60s https://api.example.com/slow-endpoint
+```
+
+**Flag:** `--timeout duration`
+
+**Default:** 30 seconds
+
+<Tabs>
+  <Tab title="Seconds">
+    ```bash
+    gurl request --timeout 45s https://example.com
+    ```
+  </Tab>
+  <Tab title="Minutes">
+    ```bash
+    gurl request --timeout 2m https://example.com
+    ```
+  </Tab>
+  <Tab title="Milliseconds">
+    ```bash
+    gurl request --timeout 500ms https://example.com
+    ```
+  </Tab>
+</Tabs>
+
+### Maximum Redirects
+
+Control the maximum number of redirects to follow:
+
+```bash
+gurl request -L --max-redirects 5 https://example.com
+```
+
+**Flag:** `--max-redirects int`
+
+**Default:** 10
+
+<Note>
+This flag requires the `-L` (follow) flag to be set for the request command.
+</Note>
+
+### Wait Time
+
+Add a delay before making the request:
+
+```bash
+gurl request --wait-time 5s https://api.example.com/endpoint
+```
+
+**Flag:** `--wait-time duration`
+
+**Default:** 0 (no wait)
+
+Use cases:
+- Rate limiting compliance
+- Testing retry logic
+- Coordinating with other processes
+
+### Verbose Wait Time
+
+Combine with `-v` to see a waiting message:
+
+```bash
+gurl request -v --wait-time 3s https://dummyjson.com/test
+```
+
+Output: `Waiting for 3s before making request...`
+
+### Disable Color Output
+
+Disable colored terminal output:
+
+```bash
+gurl request --no-color https://api.example.com
+```
+
+**Flag:** `--no-color`
+
+Useful for:
+- Scripts and automation
+- Logging to files
+- Terminals without color support
+- CI/CD pipelines
+
+## Environment Variables
+
+### GURL_NO_BANNER
+
+Disable the welcome banner that appears when running gurl:
+
+```bash
+export GURL_NO_BANNER=1
+gurl request https://api.example.com
+```
+
+**Variable:** `GURL_NO_BANNER`
+
+**Values:** 
+- `1` - Disable banner
+- Not set or any other value - Show banner
+
+<Tabs>
+  <Tab title="Temporary">
+    ```bash
+    # Set for a single command
+    GURL_NO_BANNER=1 gurl request https://example.com
+    ```
+  </Tab>
+  <Tab title="Session">
+    ```bash
+    # Set for current shell session
+    export GURL_NO_BANNER=1
+    gurl request https://example.com
+    ```
+  </Tab>
+  <Tab title="Permanent">
+    ```bash
+    # Add to ~/.bashrc or ~/.zshrc
+    echo 'export GURL_NO_BANNER=1' >> ~/.bashrc
+    source ~/.bashrc
+    ```
+  </Tab>
+</Tabs>
+
+<Tip>
+Disable the banner in scripts and automation to keep logs clean.
+</Tip>
+
+## Per-Command vs Global Options
+
+Understanding the difference between command-specific and global flags is important.
+
+### Global Flags (Apply to All Commands)
+
+These flags work with `request`, `download`, and all other commands:
+
+- `--insecure` / `-k`
+- `--timeout`
+- `--max-redirects`
+- `--wait-time`
+- `--no-color`
+
+**Example:**
+```bash
+# Global flags can be used with any command
+gurl request --timeout 60s -k https://example.com
+gurl download --timeout 120s https://example.com/file.zip
+```
+
+### Request Command Flags
+
+These flags only work with the `request` command:
+
+- `-X, --method` - HTTP method
+- `-d, --data` - Request body
+- `-H, --header` - Custom headers
+- `-v, --verbose` - Verbose output
+- `-o, --output` - Output file
+- `-j, --json` - Format JSON
+- `-L, --follow` - Follow redirects
+- `--json-request` - JSON Content-Type
+- `--form` - Form Content-Type
+- `--no-pretty` - Disable JSON formatting
+
+### Download Command Flags
+
+These flags only work with the `download` command:
+
+- `-o, --output` - Output filename
+- `-P, --directory` - Output directory
+- `-c, --continue` - Resume download
+- `-q, --quiet` - Quiet mode
+- `-r, --tries` - Retry attempts
+- `--retry-delay` - Delay between retries
+
+## Flag Precedence
+
+When multiple flags affect the same setting:
+
+1. **Command-specific flags** override global flags
+2. **Explicit flags** override defaults
+3. **Environment variables** are checked if no flag is set
+
+### Example: Timeout Precedence
+
+```bash
+# Default timeout: 30s
+gurl request https://example.com
+
+# Global timeout: 60s
+gurl request --timeout 60s https://example.com
+
+# Download-specific timeout: 120s (overrides global)
+gurl download -t 120s https://example.com/file.zip
+```
+
+## Configuration Best Practices
+
+<Steps>
+  <Step title="Development Environment">
+    Use insecure mode and increased timeouts:
+    ```bash
+    gurl request -k --timeout 120s https://dev.example.com/api
+    ```
+  </Step>
+  <Step title="Production Scripts">
+    Disable colors and banner for clean logs:
+    ```bash
+    export GURL_NO_BANNER=1
+    gurl request --no-color -o response.json https://api.example.com
+    ```
+  </Step>
+  <Step title="Rate-Limited APIs">
+    Use wait-time to respect rate limits:
+    ```bash
+    gurl request --wait-time 1s https://api.example.com/endpoint
+    ```
+  </Step>
+  <Step title="Unstable Networks">
+    Increase timeout and retries:
+    ```bash
+    gurl download --timeout 300s --tries 5 --retry-delay 10s https://example.com/large-file.iso
+    ```
+  </Step>
+</Steps>
+
+## Complete Configuration Example
+
+Here's a comprehensive example using multiple configuration options:
+
+```bash
+# Set environment
+export GURL_NO_BANNER=1
+
+# Make configured request
+gurl request https://api.example.com/data \
+  -X POST \
+  --json-request \
+  -d '{"query":"test"}' \
+  -H "Authorization: Bearer token123" \
+  -L \
+  --timeout 60s \
+  --max-redirects 5 \
+  --wait-time 2s \
+  --no-color \
+  -v \
+  -o response.json
+```
+
+This configuration:
+- Disables the banner via environment variable
+- Sets a 60-second timeout
+- Limits redirects to 5
+- Waits 2 seconds before sending
+- Disables colored output
+- Shows verbose information
+- Saves response to file
+
+<Note>
+Global flags must be specified after the command name (e.g., `gurl request --timeout 60s`), not before it.
+</Note>

@@ -1,0 +1,83 @@
+---
+title: Introduction
+description: A fast, reliable HTTP client CLI with JSON support and intuitive syntax
+---
+
+## Welcome to gurl
+
+gurl is a modern HTTP client built in Go that combines the power of curl with additional features designed for today's API-driven development. Inspired by curl but enhanced with JSON formatting, progress tracking, and developer-friendly defaults.
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="JSON Support" icon="brackets-curly">
+    Automatic JSON formatting for requests and responses with pretty-printing
+  </Card>
+  <Card title="File Downloads" icon="download">
+    wget-like functionality with progress tracking, resume capability, and retry logic
+  </Card>
+  <Card title="HTTP Methods" icon="code">
+    Support for all HTTP methods (GET, POST, PUT, DELETE, PATCH, etc.)
+  </Card>
+  <Card title="Custom Headers" icon="heading">
+    Easy header management for authentication and content negotiation
+  </Card>
+  <Card title="Redirect Following" icon="arrows-turn-right">
+    Configurable redirect handling with customizable limits
+  </Card>
+  <Card title="Timing Information" icon="clock">
+    Verbose output with detailed request/response timing metrics
+  </Card>
+  <Card title="TLS Options" icon="shield">
+    Flexible SSL/TLS handling including insecure mode for testing
+  </Card>
+  <Card title="Color-Coded Output" icon="palette">
+    Enhanced readability with color-coded terminal output
+  </Card>
+</CardGroup>
+
+## What Makes gurl Different?
+
+- **Intuitive Syntax**: Cleaner command structure compared to traditional curl
+- **Built-in JSON Handling**: No need for external tools like jq for JSON formatting
+- **Download Manager**: Integrated download command with resume and retry capabilities
+- **Modern Defaults**: Sensible defaults for API development workflows
+- **Fast & Reliable**: Built in Go for performance and cross-platform compatibility
+
+## Quick Navigation
+
+<CardGroup cols={3}>
+  <Card
+    title="Installation"
+    icon="download"
+    href="/installation"
+  >
+    Install gurl using Homebrew, Scoop, apt, or build from source
+  </Card>
+  <Card
+    title="Quick Start"
+    icon="rocket"
+    href="/quickstart"
+  >
+    Make your first HTTP request in under 2 minutes
+  </Card>
+  <Card
+    title="Request Command"
+    icon="terminal"
+    href="/request"
+  >
+    Learn about the main request command and all its options
+  </Card>
+</CardGroup>
+
+## Use Cases
+
+- **API Testing**: Quickly test REST APIs during development
+- **File Downloads**: Download files with progress tracking and resume support
+- **CI/CD Pipelines**: Integrate HTTP requests into automated workflows
+- **DevOps Automation**: Script HTTP operations with reliable retry logic
+- **JSON APIs**: Work with JSON APIs without additional formatting tools
+
+<Tip>
+  New to gurl? Start with the [Quick Start Guide](/quickstart) to make your first request in minutes.
+</Tip>

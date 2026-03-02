@@ -1,0 +1,156 @@
+---
+title: Installation
+description: Install gurl on macOS, Linux, or Windows using your preferred package manager
+---
+
+gurl offers multiple installation methods to suit your platform and preferences. Choose the method that works best for your environment.
+
+## macOS and Linux
+
+<Steps>
+  <Step title="Install with Homebrew">
+    The easiest way to install gurl on macOS or Linux is using Homebrew:
+
+    ```bash
+    brew tap geekyharsh05/gurl
+    brew install gurl
+    ```
+
+    This will install the latest stable version of gurl and add it to your PATH.
+  </Step>
+</Steps>
+
+## Windows
+
+<Steps>
+  <Step title="Install with Scoop">
+    On Windows, use Scoop package manager:
+
+    ```bash
+    scoop bucket add geekyharsh05 https://github.com/geekyharsh05/scoop-bucket
+    scoop install gurl
+    ```
+
+    Scoop will handle the installation and PATH configuration automatically.
+  </Step>
+</Steps>
+
+## Linux (Debian/Ubuntu)
+
+<Steps>
+  <Step title="Download the .deb package">
+    Download the latest Debian package from the releases page:
+
+    ```bash
+    wget https://github.com/geekyharsh05/gurl/releases/download/v1.0.1/gurl_1.0.1_linux_amd64.deb
+    ```
+  </Step>
+
+  <Step title="Install the package">
+    Use apt to install the downloaded package:
+
+    ```bash
+    sudo apt install ./gurl_1.0.1_linux_amd64.deb
+    ```
+
+    <Note>
+      Replace `v1.0.1` with the latest version number if a newer release is available.
+    </Note>
+  </Step>
+</Steps>
+
+## Install with Go
+
+<Steps>
+  <Step title="Install using go install">
+    If you have Go installed (version 1.16 or later), you can install gurl directly:
+
+    ```bash
+    go install github.com/geekyharsh05/gurl@latest
+    ```
+
+    Make sure your `$GOPATH/bin` directory is in your PATH.
+  </Step>
+</Steps>
+
+## Build from Source
+
+<Steps>
+  <Step title="Clone the repository">
+    Clone the gurl repository from GitHub:
+
+    ```bash
+    git clone https://github.com/geekyharsh05/gurl.git
+    cd gurl
+    ```
+  </Step>
+
+  <Step title="Build the binary">
+    Build the gurl binary using Go:
+
+    ```bash
+    go build
+    ```
+
+    This will create a `gurl` binary in the current directory.
+  </Step>
+
+  <Step title="(Optional) Install globally">
+    Move the binary to a directory in your PATH:
+
+    ```bash
+    # On macOS/Linux
+    sudo mv gurl /usr/local/bin/
+
+    # Or add to your personal bin directory
+    mv gurl ~/bin/
+    ```
+  </Step>
+</Steps>
+
+## Verify Installation
+
+<Steps>
+  <Step title="Check the version">
+    After installation, verify that gurl is properly installed:
+
+    ```bash
+    gurl version
+    ```
+
+    You should see the version information displayed in your terminal.
+  </Step>
+
+  <Step title="Run a test request">
+    Test your installation with a simple HTTP request:
+
+    ```bash
+    gurl request https://httpbin.org/get
+    ```
+
+    If you see a JSON response, gurl is working correctly!
+  </Step>
+</Steps>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Quick Start"
+    icon="rocket"
+    href="/quickstart"
+  >
+    Make your first requests and learn the basics
+  </Card>
+  <Card
+    title="Request Command"
+    icon="terminal"
+    href="/request"
+  >
+    Explore all request command options and flags
+  </Card>
+</CardGroup>
+
+<Tip>
+  Having issues? Make sure your package manager is up to date and that you have the necessary permissions to install software on your system.
+</Tip>

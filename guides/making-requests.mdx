@@ -1,0 +1,180 @@
+---
+title: Making HTTP Requests
+description: Learn how to make HTTP requests with different methods, headers, and options
+---
+
+The `gurl request` command is the core feature for making HTTP requests. It supports all standard HTTP methods and provides extensive configuration options.
+
+## Basic GET Request
+
+The simplest way to make a request is with just a URL:
+
+```bash
+gurl request https://dummyjson.com/products
+```
+
+This performs a GET request and displays the response in your terminal.
+
+## HTTP Methods
+
+Use the `-X` or `--method` flag to specify different HTTP methods:
+
+<Tabs>
+  <Tab title="POST">
+    ```bash
+    gurl request -X POST https://dummyjson.com/products
+    ```
+  </Tab>
+  <Tab title="PUT">
+    ```bash
+    gurl request -X PUT https://dummyjson.com/products/1
+    ```
+  </Tab>
+  <Tab title="DELETE">
+    ```bash
+    gurl request -X DELETE https://dummyjson.com/products/1
+    ```
+  </Tab>
+  <Tab title="PATCH">
+    ```bash
+    gurl request -X PATCH https://dummyjson.com/products/1
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+The default method is GET if not specified.
+</Note>
+
+## Sending Request Bodies
+
+Use the `-d` or `--data` flag to send data in the request body:
+
+```bash
+gurl request https://dummyjson.com/auth/login \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"username":"emilys","password":"emilyspass","expiresInMins":30}'
+```
+
+<Tip>
+For JSON requests, you can use the `--json-request` flag as a shortcut to automatically set the Content-Type header.
+</Tip>
+
+## Following Redirects
+
+By default, gurl does not follow redirects. Use the `-L` or `--follow` flag to enable redirect following:
+
+```bash
+gurl request -L https://dummyjson.com/http/200
+```
+
+You can control the maximum number of redirects with the global `--max-redirects` flag:
+
+```bash
+gurl request -L --max-redirects 5 https://example.com
+```
+
+<Note>
+The default maximum is 10 redirects.
+</Note>
+
+## Timeout Configuration
+
+Set a custom timeout for your request using the global `--timeout` flag:
+
+```bash
+gurl request --timeout 60s https://dummyjson.com/test
+```
+
+Timeout values can be specified in various formats:
+- `30s` - 30 seconds
+- `1m` - 1 minute
+- `500ms` - 500 milliseconds
+
+<Warning>
+The default timeout is 30 seconds. Requests that exceed the timeout will be aborted.
+</Warning>
+
+## Wait Time Before Requests
+
+You can add a delay before making a request using the `--wait-time` flag:
+
+```bash
+gurl request --wait-time 5s https://dummyjson.com/test
+```
+
+This is useful for:
+- Rate limiting
+- Testing retry logic
+- Coordinating requests with other processes
+
+### Verbose Wait Time
+
+Combine `--wait-time` with the `-v` (verbose) flag to see a waiting message:
+
+```bash
+gurl request -v --wait-time 3s https://dummyjson.com/test
+```
+
+This will display: `Waiting for 3s before making request...`
+
+## Saving Responses
+
+Save the response to a file using the `-o` or `--output` flag:
+
+```bash
+gurl request -o response.json https://dummyjson.com/users
+```
+
+## Verbose Output
+
+Get detailed timing information and request details with the `-v` or `--verbose` flag:
+
+```bash
+gurl request -v https://dummyjson.com/test
+```
+
+This shows:
+- Request timing
+- Response headers
+- Additional debugging information
+
+## Insecure Connections
+
+For testing with self-signed certificates or development environments, skip TLS verification:
+
+```bash
+gurl request -k https://dummyjson.com/test
+```
+
+<Warning>
+Only use the `-k` (insecure) flag in development environments. Never skip certificate verification in production.
+</Warning>
+
+## Complete Example
+
+Here's a comprehensive example combining multiple options:
+
+```bash
+gurl request https://api.example.com/users \
+  -X POST \
+  -H "Authorization: Bearer token123" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"John Doe","email":"john@example.com"}' \
+  -L \
+  --timeout 60s \
+  --wait-time 2s \
+  -v \
+  -o response.json
+```
+
+This command:
+- Makes a POST request
+- Includes authorization and content-type headers
+- Sends JSON data
+- Follows redirects
+- Sets a 60-second timeout
+- Waits 2 seconds before sending
+- Shows verbose output
+- Saves the response to a file

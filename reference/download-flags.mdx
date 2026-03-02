@@ -1,0 +1,122 @@
+---
+title: Download Command Flags
+description: Flags available for the gurl download command
+---
+
+The download command provides wget-like functionality for downloading files with features like progress tracking, resume capability, and automatic retries.
+
+## Flags
+
+<ParamField path="-o, --output" type="string" default="">
+  Save file with the specified name. If not provided, the filename will be extracted from the URL.
+</ParamField>
+
+<ParamField path="-P, --directory" type="string" default="">
+  Save files to the specified directory. The directory will be created if it doesn't exist. If not specified, files are saved to the current directory.
+</ParamField>
+
+<ParamField path="-c, --continue" type="boolean" default="false">
+  Resume getting a partially-downloaded file. This allows you to continue interrupted downloads from where they left off.
+</ParamField>
+
+<ParamField path="-q, --quiet" type="boolean" default="false">
+  Quiet mode - don't show progress bar. Useful for scripting or when running in background.
+</ParamField>
+
+<ParamField path="-k, --insecure" type="boolean" default="false">
+  Allow insecure server connections when using SSL/TLS. This disables certificate verification.
+</ParamField>
+
+<ParamField path="-t, --timeout" type="duration" default="30s">
+  Set timeout for download. Specifies the maximum time to wait for the download to complete. Accepts time duration format (e.g., 30s, 5m).
+</ParamField>
+
+<ParamField path="-n, --no-redirect" type="boolean" default="false">
+  Don't follow redirects. By default, the download command follows redirects automatically.
+</ParamField>
+
+<ParamField path="--max-redirects" type="integer" default="10">
+  Maximum number of redirects to follow. This limits the number of consecutive redirects when redirect following is enabled.
+</ParamField>
+
+<ParamField path="-r, --tries" type="integer" default="3">
+  Number of retry attempts. Set to 0 for no retries. The download will be retried this many times if it fails.
+</ParamField>
+
+<ParamField path="--retry-delay" type="duration" default="2s">
+  Delay between retries. Specifies how long to wait before attempting another retry. Accepts time duration format (e.g., 2s, 500ms).
+</ParamField>
+
+## Usage Examples
+
+### Basic Download
+
+```bash
+gurl download https://example.com/file.zip
+```
+
+### Download with Custom Filename
+
+```bash
+gurl download -o myfile.zip https://example.com/file.zip
+```
+
+### Download to Specific Directory
+
+```bash
+gurl download -P ./downloads https://example.com/file.zip
+```
+
+### Resume Interrupted Download
+
+```bash
+gurl download -c https://example.com/largefile.iso
+```
+
+### Quiet Mode (No Progress Bar)
+
+```bash
+gurl download -q https://example.com/file.zip
+```
+
+### Download with Custom Timeout
+
+```bash
+gurl download -t 5m https://example.com/largefile.zip
+```
+
+### Disable Redirect Following
+
+```bash
+gurl download -n https://example.com/redirect-to-file
+```
+
+### Custom Retry Settings
+
+```bash
+gurl download -r 5 --retry-delay 5s https://example.com/file.zip
+```
+
+### Allow Insecure Connections
+
+```bash
+gurl download -k https://self-signed.example.com/file.zip
+```
+
+### Combining Multiple Flags
+
+```bash
+gurl download -c -P ./downloads -o archive.zip -r 5 https://example.com/file.zip
+```
+
+### Download with No Retries
+
+```bash
+gurl download -r 0 https://example.com/file.zip
+```
+
+### Complete Example with All Options
+
+```bash
+gurl download -o myfile.zip -P ./downloads -c -k -t 10m --max-redirects 5 -r 3 --retry-delay 3s https://example.com/file.zip
+```
