@@ -96,7 +96,7 @@ gurl download https://example.com/file.zip
 ```
 
 **Output:**
-```
+```text
 Downloading file.zip...
 [████████████████████] 100% | 10 MB/10 MB | 2.5 MB/s | ETA: 0s
 Download completed: file.zip
@@ -133,7 +133,7 @@ gurl download -c https://example.com/large-file.iso
 ```
 
 **Output:**
-```
+```text
 Resuming download from 5.2 GB...
 [████████░░░░░░░░░░░░] 45% | 4.5 GB/10 GB | 3.1 MB/s | ETA: 25m
 ```
@@ -157,7 +157,7 @@ gurl download --tries 5 --retry-delay 5s https://example.com/file.zip
 ```
 
 **Output:**
-```
+```text
 Download attempt 1 failed: connection timeout
 Retrying in 5s...
 Download attempt 2 succeeded
@@ -228,7 +228,7 @@ By default, the download command shows a progress bar with:
 
 ### Example Progress Output
 
-```
+```text
 Downloading ubuntu-22.04.iso...
 [██████████░░░░░░░░░░] 50% | 1.8 GB/3.6 GB | 4.2 MB/s | ETA: 7m 12s
 ```
