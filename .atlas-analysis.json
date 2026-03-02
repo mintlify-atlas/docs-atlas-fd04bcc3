@@ -1,0 +1,100 @@
+{
+  "projectType": "cli-tool",
+  "projectName": "gurl",
+  "projectDescription": "A fast, modern HTTP client CLI tool with JSON support and wget-like download functionality",
+  "theme": "aspen",
+  "primaryColor": "#00D4AA",
+  "lightColor": "#00FFC8",
+  "darkColor": "#00A885",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": ["introduction", "installation", "quickstart"]
+          },
+          {
+            "group": "Commands",
+            "pages": [
+              "commands/request",
+              "commands/download",
+              "commands/version"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/making-requests",
+              "guides/downloading-files",
+              "guides/headers-and-auth",
+              "guides/json-handling",
+              "guides/configuration"
+            ]
+          },
+          {
+            "group": "Examples",
+            "pages": [
+              "examples/basic-requests",
+              "examples/api-integration",
+              "examples/file-downloads",
+              "examples/advanced-usage"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Reference",
+        "groups": [
+          {
+            "group": "CLI Reference",
+            "pages": [
+              "reference/global-flags",
+              "reference/request-flags",
+              "reference/download-flags"
+            ]
+          },
+          {
+            "group": "Resources",
+            "pages": [
+              "reference/troubleshooting",
+              "reference/comparison"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Simple and intuitive command syntax for HTTP requests",
+    "All HTTP methods support (GET, POST, PUT, DELETE, PATCH)",
+    "Custom headers and request body configuration",
+    "Automatic JSON detection and formatting",
+    "File download with progress bar and resume capability",
+    "Redirect following with configurable limits",
+    "Request timing and verbose output",
+    "Retry logic with configurable delays",
+    "Insecure TLS connections for testing",
+    "Color-coded output for better readability"
+  ],
+  "publicApiSurface": [
+    "gurl request - Make HTTP requests",
+    "gurl download - Download files with progress tracking",
+    "gurl version - Display version information",
+    "-X, --method - HTTP method (GET, POST, PUT, DELETE, etc.)",
+    "-d, --data - Request body data",
+    "-H, --header - Custom headers",
+    "-j, --json - Format response as JSON",
+    "-o, --output - Write output to file",
+    "-v, --verbose - Show verbose output",
+    "-L, --follow - Follow redirects",
+    "-c, --continue - Resume partial downloads",
+    "-k, --insecure - Allow insecure connections",
+    "--timeout - Request timeout duration",
+    "--max-redirects - Maximum redirects to follow",
+    "--wait-time - Delay before request",
+    "--tries - Number of retry attempts",
+    "--retry-delay - Delay between retries"
+  ]
+}
